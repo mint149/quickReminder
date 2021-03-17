@@ -13,7 +13,7 @@ struct ContentView: View {
     @State var title: String = ""
     @State private var selectionDate = Date()
     @State private var dateOn = true
-    @State private var TimeOn = true
+    @State private var timeOn = true
 
     var body: some View {
         ScrollView{
@@ -22,14 +22,14 @@ struct ContentView: View {
                 Divider()
                 HStack{
                     Toggle("setDate", isOn : $dateOn)
-                    Toggle("setTime", isOn : $TimeOn)
+                    Toggle("setTime", isOn : $timeOn)
                 }
                 Divider()
                 DatePicker("", selection: $selectionDate)
                     .labelsHidden()
                     .datePickerStyle(GraphicalDatePickerStyle())
                 HStack{
-                    TextField("2000/11/23 12:30",text: $title)
+                    TextField("",text: $title)
                         .border(Color(UIColor.separator))
                     Button(action: {
                         let eventStore = EKEventStore()
