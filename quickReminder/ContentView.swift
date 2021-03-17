@@ -9,7 +9,7 @@ import SwiftUI
 import EventKit
 
 struct ContentView: View {
-    @State var authorizationStatus = "None"
+    @State var authorizationStatus = "unknown"
     @State var reminderList: [EKReminder]? = [EKReminder()]
 
     var body: some View {
@@ -19,36 +19,15 @@ struct ContentView: View {
                 .padding()
             Button(action: {
                 let eventStore = EKEventStore()
-                switch EKEventStore.authorizationStatus(for: EKEntityType.reminder){
-                case .notDetermined:
-                    eventStore.requestAccess(to: .reminder) { (granted, error) in
-                        print(granted)
-                        print(error ?? "ok")
-                    }
-                case .restricted:
-                    authorizationStatus = "restricted"
-                case .denied:
-                    authorizationStatus = "denied"
-                case .authorized:
-                    authorizationStatus = "authorized"
-                @unknown default:
-                    authorizationStatus = "unknown"
-                }
-            
-                let ekcal : [EKCalendar] = [eventStore.defaultCalendarForNewReminders()!]
-                let pred = eventStore.predicateForReminders(in: ekcal)
-                eventStore.fetchReminders(matching: pred) { (reminders) in
+                let defaultCalender : [EKCalendar] = [eventStore.defaultCalendarForNewReminders()!]
+                let predicateForReminders = eventStore.predicateForReminders(in: defaultCalender)
+                eventStore.fetchReminders(matching: predicateForReminders) { (reminders) in
                     reminderList = reminders
                 }
                 let newReminder: EKReminder = EKReminder(eventStore: eventStore)
                 newReminder.title = "new reminder"
                 newReminder.calendar = eventStore.defaultCalendarForNewReminders()
-                
-                let date = Date()
-                let components = Calendar.current.dateComponents(in: TimeZone.current, from: date)
-
-                newReminder.dueDateComponents = components
-
+                newReminder.dueDateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: Date())
 
                 do{
                     try eventStore.save(newReminder, commit: true)
@@ -59,6 +38,28 @@ struct ContentView: View {
             }) {
                 Text("Go!")
                 
+            }
+        }
+        .onAppear(){
+            switch EKEventStore.authorizationStatus(for: EKEntityType.reminder){
+            case .notDetermined:
+                let eventStore = EKEventStore()
+                eventStore.requestAccess(to: .reminder) { (granted, error) in
+                    if granted{
+                        authorizationStatus = "granted"
+                    }else{
+                        authorizationStatus = "failed"
+                        print(error ?? "unknown error")
+                    }
+                }
+            case .restricted:
+                authorizationStatus = "restricted"
+            case .denied:
+                authorizationStatus = "denied"
+            case .authorized:
+                authorizationStatus = "authorized"
+            @unknown default:
+                authorizationStatus = "unknown"
             }
         }
     }
