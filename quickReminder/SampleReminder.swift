@@ -32,7 +32,4 @@ struct SampleReminder{
         newReminder.calendar = eventStore.defaultCalendarForNewReminders()
         return newReminder
     }
-    static func makeS() -> String {
-        return "newReminder"
-    }
 }
