@@ -12,24 +12,20 @@ struct ContentView: View {
     @State var authorizationStatus = "unknown"
     @State var title: String = ""
     @State private var selectionDate = Date()
-    @State private var dateOn = true
-    @State private var timeOn = true
 
     var body: some View {
         ScrollView{
             VStack(alignment: .leading){
-                Text("authorizationStatus:\(authorizationStatus)")
-                Divider()
-                HStack{
-                    Toggle("setDate", isOn : $dateOn)
-                    Toggle("setTime", isOn : $timeOn)
-                }
-                Divider()
                 DatePicker("", selection: $selectionDate)
                     .labelsHidden()
                     .datePickerStyle(GraphicalDatePickerStyle())
+                    .scaleEffect(0.8)
+                    .frame(width: 280, height: 270)
+            }
+
+            VStack(alignment: .leading){
                 HStack{
-                    TextField("",text: $title)
+                    TextField("set reminder title",text: $title)
                         .border(Color(UIColor.separator))
                     Button(action: {
                         let eventStore = EKEventStore()
@@ -37,16 +33,11 @@ struct ContentView: View {
                         
                         newReminder.title = title
                         newReminder.calendar = eventStore.defaultCalendarForNewReminders()
-                        if timeOn{
                             newReminder.dueDateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: selectionDate)
-                        }else if dateOn{
-                            let startOfDay = Calendar(identifier: .gregorian).startOfDay(for: selectionDate)
-                            newReminder.dueDateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: startOfDay)
-                            // TODO:日付のみでなく、その日付の0時にリマインダー設定される。日付のみにする方法を調査する必要あり。
-                        }
                         
                         do{
                             try eventStore.save(newReminder, commit: true)
+                            title = ""
                         }catch let error{
                             print(error)
                         }
@@ -55,6 +46,8 @@ struct ContentView: View {
                         Text("登録")
                     }
                 }
+                Divider()
+                Text("authorizationStatus:\(authorizationStatus)")
                 Spacer()
             }
         }.padding()
