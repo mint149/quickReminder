@@ -34,9 +34,16 @@ struct ContentView: View {
                     Button(action: {
                         let eventStore = EKEventStore()
                         let newReminder: EKReminder = EKReminder(eventStore: eventStore)
+                        
                         newReminder.title = title
                         newReminder.calendar = eventStore.defaultCalendarForNewReminders()
-                        newReminder.dueDateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: Date())
+                        if timeOn{
+                            newReminder.dueDateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: selectionDate)
+                        }else if dateOn{
+                            let startOfDay = Calendar(identifier: .gregorian).startOfDay(for: selectionDate)
+                            newReminder.dueDateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: startOfDay)
+                            // TODO:日付のみでなく、その日付の0時にリマインダー設定される。日付のみにする方法を調査する必要あり。
+                        }
                         
                         do{
                             try eventStore.save(newReminder, commit: true)
