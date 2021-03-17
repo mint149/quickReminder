@@ -22,7 +22,6 @@ struct ReminderRow: View {
 }
 
 struct ReminderRow_Previews: PreviewProvider {
-    static var model = ModelData()
     static var sample = SampleReminder()
 
     static var previews: some View {
