@@ -11,32 +11,45 @@ import EventKit
 struct ContentView: View {
     @State var authorizationStatus = "unknown"
     @State var title: String = ""
+    @State private var selectionDate = Date()
+    @State private var dateOn = true
+    @State private var TimeOn = true
 
     var body: some View {
-        VStack(alignment: .leading){
-            Text("auth:\(authorizationStatus)")
-            Divider()
-            HStack{
-                TextField("2000/11/23 12:30",text: $title)
-                    .border(Color(UIColor.separator))
-                Button(action: {
-                    let eventStore = EKEventStore()
-                    let newReminder: EKReminder = EKReminder(eventStore: eventStore)
-                    newReminder.title = title
-                    newReminder.calendar = eventStore.defaultCalendarForNewReminders()
-                    newReminder.dueDateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: Date())
-                    
-                    do{
-                        try eventStore.save(newReminder, commit: true)
-                    }catch let error{
-                        print(error)
-                    }
-                    
-                }) {
-                    Text("登録")
+        ScrollView{
+            VStack(alignment: .leading){
+                Text("authorizationStatus:\(authorizationStatus)")
+                Divider()
+                HStack{
+                    Toggle("setDate", isOn : $dateOn)
+                    Toggle("setTime", isOn : $TimeOn)
                 }
+                Divider()
+                DatePicker("", selection: $selectionDate)
+                    .labelsHidden()
+                    .datePickerStyle(GraphicalDatePickerStyle())
+                HStack{
+                    TextField("2000/11/23 12:30",text: $title)
+                        .border(Color(UIColor.separator))
+                    Button(action: {
+                        let eventStore = EKEventStore()
+                        let newReminder: EKReminder = EKReminder(eventStore: eventStore)
+                        newReminder.title = title
+                        newReminder.calendar = eventStore.defaultCalendarForNewReminders()
+                        newReminder.dueDateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: Date())
+                        
+                        do{
+                            try eventStore.save(newReminder, commit: true)
+                        }catch let error{
+                            print(error)
+                        }
+                        
+                    }) {
+                        Text("登録")
+                    }
+                }
+                Spacer()
             }
-            Spacer()
         }.padding()
         .onAppear(){
             switch EKEventStore.authorizationStatus(for: EKEntityType.reminder){
