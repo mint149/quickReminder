@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>NSRemindersUsageDescription</key>
-	<string>&quot;rimainda-&quot;</string>
+	<string>&quot;リマインダーへの登録&quot;</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>&quot;カレンダーに保存&quot;</string>
 	<key>CFBundleDevelopmentRegion</key>
